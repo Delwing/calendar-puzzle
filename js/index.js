@@ -127,7 +127,9 @@ for (const piece of piecesDefinitions) {
   };
 
   path.onDoubleClick = (event) => {
+    if (event.event.button !== 2) {
       path.scale(-1, 1)
+    }
   }
 
   path.onMouseUp = (event) => {

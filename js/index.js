@@ -163,3 +163,7 @@ function checkOccupiedCells() {
     }
   });
 }
+
+document.getElementById("occupied").addEventListener("click", () => {
+    checkOccupiedCells();
+})

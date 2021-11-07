@@ -121,13 +121,16 @@ for (const piece of piecesDefinitions) {
   path.onClick = (event) => {
     if (event.event.button === 2) {
       path.pivot = event.point;
-      path.rotate(90);
+      path.rotate(90)
       path.pivot = null;
     }
   };
 
+  path.onDoubleClick = (event) => {
+      path.scale(-1, 1)
+  }
+
   path.onMouseUp = (event) => {
-    console.log(event);
     if (path.drag) {
       path.drag = false;
 
@@ -150,20 +153,29 @@ function visitBoard(func) {
 }
 
 function checkOccupiedCells() {
-  visitBoard((cell) => (cell.children[0].fillColor = null));
+  let notOccuppied = [];
   visitBoard((cell, x, y) => {
+    cell.children[0].fillColor = null;
     let pos = cell.position;
+    let occupied = false;
     for (const piece of pieces) {
       piece.children.forEach((child) => {
         let sqPosition = child.position;
         if (pos.equals(sqPosition)) {
           cell.children[0].fillColor = new paper.Color(0.8, 0.8, 0.8, 0.8);
+          occupied = true;
         }
       });
     }
+    if (!occupied) {
+        notOccuppied.push([x, y]);
+    }
   });
+  if (notOccuppied.length == 2) {
+      alert("Jebs alertem!")
+  }
 }
 
 document.getElementById("occupied").addEventListener("click", () => {
-    checkOccupiedCells();
-})
+  checkOccupiedCells();
+});

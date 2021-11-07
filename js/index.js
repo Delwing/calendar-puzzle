@@ -4,7 +4,9 @@ canvas.addEventListener("contextmenu", (event) => {
   event.preventDefault();
 });
 
-paper.setup(canvas);
+let scope = paper.setup(canvas);
+scope.project.view.translate(new paper.Point(125, 125))
+
 
 let boardDefinition = [
   ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
@@ -65,6 +67,7 @@ let size = 50;
 
 let board = [];
 
+
 let boardGroup = new paper.Group();
 let rowIndex = 0;
 for (const row of boardDefinition) {
@@ -84,12 +87,11 @@ for (const row of boardDefinition) {
     boardGroup.addChild(cellGroup);
 
     board[rowIndex][cellIndex] = cellGroup;
-
     cellIndex++;
   }
   rowIndex++;
 }
-boardGroup.position = new paper.Point(size * 5 + size / 2, size * 5 + size / 2);
+
 
 let pieces = [];
 for (const piece of piecesDefinitions) {
@@ -107,8 +109,10 @@ for (const piece of piecesDefinitions) {
       cellIndex++;
     }
     rowIndex++;
-    pieces.push(path);
   }
+  pieces.push(path);
+  path.bounds.topLeft.x = -125;
+  path.bounds.topLeft.y = -125;
 
   path.onMouseDrag = (event) => {
     if (event.event.buttons !== 1) {
@@ -121,21 +125,23 @@ for (const piece of piecesDefinitions) {
   path.onClick = (event) => {
     if (event.event.button === 2) {
       path.pivot = event.point;
-      path.rotate(90)
+      path.rotate(90);
       path.pivot = null;
     }
   };
 
   path.onDoubleClick = (event) => {
-    if (event.event.button !== 2) {
-      path.scale(-1, 1)
+    if (path.drag) {
+      return;
     }
-  }
+    if (event.event.button !== 2) {
+      path.scale(-1, 1);
+    }
+  };
 
   path.onMouseUp = (event) => {
     if (path.drag) {
       path.drag = false;
-
       path.bounds.topLeft.x = Math.round(path.bounds.topLeft.x / size) * size;
       path.bounds.topLeft.y = Math.round(path.bounds.topLeft.y / size) * size;
     }
@@ -154,29 +160,61 @@ function visitBoard(func) {
   }
 }
 
-function checkOccupiedCells() {
-  let notOccuppied = [];
-  visitBoard((cell, x, y) => {
-    cell.children[0].fillColor = null;
-    let pos = cell.position;
-    let occupied = false;
-    for (const piece of pieces) {
-      piece.children.forEach((child) => {
-        let sqPosition = child.position;
-        if (pos.equals(sqPosition)) {
-          cell.children[0].fillColor = new paper.Color(0.8, 0.8, 0.8, 0.8);
-          occupied = true;
-        }
-      });
-    }
-    if (!occupied) {
-        notOccuppied.push([x, y]);
-    }
-  });
-  if (notOccuppied.length == 2) {
-      alert("Jebs alertem!")
+function visitPieces(func) {
+  visitBoard((cell) => (cell.children[0].fillColor = null));
+  for (const piece of pieces) {
+    piece.children.forEach((child) => {
+      func(child);
+    });
   }
 }
+
+function checkOccupiedCells() {
+  let notOccuppied = [];
+  visitBoard((boardCell) => (boardCell.occupied = false));
+  visitPieces((pieceCell) => {
+    let y = Math.round(pieceCell.bounds.topLeft.x / size);
+    let x = Math.round(pieceCell.bounds.topLeft.y / size);
+    
+    if (board[x] && board[x][y]) {
+      let boardCell = board[x][y];
+      boardCell.children[0].fillColor = new paper.Color(0.8, 0.8, 0.8, 0.8);
+      boardCell.occupied = true;
+    }
+  });
+  visitBoard((boardCell, x, y) => {
+    boardCell.children[0].strokeColor = "black";
+    if (!boardCell.occupied) {
+      notOccuppied.push([x, y]);
+      boardCell.children[0].strokeColor = "green";
+    }
+  });
+}
+
+// function checkOccupiedCells() {
+//   let notOccuppied = [];
+//   visitBoard((cell, x, y) => {
+//     cell.children[0].fillColor = null;
+//     let pos = cell.position;
+//     let occupied = false;
+//     for (const piece of pieces) {
+//       piece.children.forEach((child) => {
+//         let sqPosition = child.position;
+//         console.log(sqPosition);
+//         if (pos.equals(sqPosition)) {
+//           cell.children[0].fillColor = new paper.Color(0.8, 0.8, 0.8, 0.8);
+//           occupied = true;
+//         }
+//       });
+//     }
+//     if (!occupied) {
+//       notOccuppied.push([x, y]);
+//     }
+//   });
+//   if (notOccuppied.length == 2) {
+//     alert("Jebs alertem!");
+//   }
+// }
 
 document.getElementById("occupied").addEventListener("click", () => {
   checkOccupiedCells();

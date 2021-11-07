@@ -1,0 +1,9 @@
+{
+  "name": "calendar-puzzle",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "paper": "^0.12.15"
+  }
+}

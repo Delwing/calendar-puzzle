@@ -3,9 +3,11 @@ body {
     margin: 20px;
 }
 
+.center {
+    text-align: center;
+}
+
 canvas {
-    display: block;
-    margin: auto;
     width: 600px;
     height: 600px;
     border: 1px solid;

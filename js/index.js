@@ -128,15 +128,9 @@ for (const piece of piecesDefinitions) {
       path.rotate(90);
       path.pivot = null;
     }
-  };
-
-  path.onDoubleClick = (event) => {
-    if (path.drag) {
-      return;
-    }
-    if (event.event.button !== 2) {
-      path.scale(-1, 1);
-    }
+    if (event.event.button === 1) {
+        path.scale(-1, 1);
+      }
   };
 
   path.onMouseUp = (event) => {
@@ -189,33 +183,19 @@ function checkOccupiedCells() {
       boardCell.children[0].strokeColor = "green";
     }
   });
-}
 
-// function checkOccupiedCells() {
-//   let notOccuppied = [];
-//   visitBoard((cell, x, y) => {
-//     cell.children[0].fillColor = null;
-//     let pos = cell.position;
-//     let occupied = false;
-//     for (const piece of pieces) {
-//       piece.children.forEach((child) => {
-//         let sqPosition = child.position;
-//         console.log(sqPosition);
-//         if (pos.equals(sqPosition)) {
-//           cell.children[0].fillColor = new paper.Color(0.8, 0.8, 0.8, 0.8);
-//           occupied = true;
-//         }
-//       });
-//     }
-//     if (!occupied) {
-//       notOccuppied.push([x, y]);
-//     }
-//   });
-//   if (notOccuppied.length == 2) {
-//     alert("Jebs alertem!");
-//   }
-// }
+  if (notOccuppied.length == 2) {
+    let monthElement = notOccuppied[0]
+    let month =  boardDefinition[monthElement[0]][monthElement[1]]
+    let dayElement = notOccuppied[1]
+    let day = boardDefinition[dayElement[0]][dayElement[1]]
+    if (typeof(month) === "string" && typeof(day) === "number") {
+        alert(`${month} ${day}`)
+    }
+  }
+}
 
 document.getElementById("occupied").addEventListener("click", () => {
   checkOccupiedCells();
 });
+
